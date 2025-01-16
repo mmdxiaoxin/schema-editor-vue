@@ -1,24 +1,21 @@
 <template>
-  <div>
-    <schema-basic
-      v-model:schema-key="key"
-      v-model:schema-type="type"
-      v-model:schema-value="value"
-      v-model:is-expanded="isExpand"
-      @toolAction="handleToolAction"
-    />
-    <SchemaSubset v-if="isExpand" />
-  </div>
+  <schema-basic
+    v-model:schema-key="key"
+    v-model:schema-type="type"
+    v-model:schema-value="value"
+    v-model:is-expanded="isExpand"
+    @toolAction="handleToolAction"
+    style="margin-left: 20px"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import SchemaBasic from './basic/SchemaBasic.vue'
-import SchemaSubset from './SchemaSubset.vue'
 
-const key = ref('someKey')
+const key = ref('subKey')
 const type = ref('String')
-const value = ref('someValue')
+const value = ref('subValue')
 const isExpand = ref(true)
 
 const handleToolAction = (action: string) => {
