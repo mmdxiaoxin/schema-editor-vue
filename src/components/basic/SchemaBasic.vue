@@ -1,10 +1,10 @@
 <template>
   <div class="schema-basic">
     <div class="schema-basic__key">
-      <el-input placeholder="key" v-model="schemaKey" @update:value="updateSchemaKey" />
+      <el-input placeholder="key" v-model="schemaKey" />
     </div>
     <div class="schema-basic__type">
-      <el-select v-model="schemaType" @update:value="updateSchemaType" placeholder="type">
+      <el-select v-model="schemaType" placeholder="type">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -14,11 +14,11 @@
       </el-select>
     </div>
     <div class="schema-basic__value">
-      <el-input placeholder="value" v-model="schemaValue" @update:value="updateSchemaValue" />
+      <el-input placeholder="value" v-model="schemaValue" />
     </div>
     <div class="schema-basic__semi">:</div>
     <div class="schema-basic__toolbar">
-      <el-button :icon="CaretRight" text circle @click="onToolAction('toggle')" />
+      <el-button :icon="isExpanded ? CaretBottom : CaretRight" text circle @click="toggleExpand" />
       <el-button :icon="Edit" text circle @click="onToolAction('edit')" />
       <el-button text circle @click="onToolAction('addItem')">
         <AddItem />
@@ -33,22 +33,18 @@
 
 <script setup lang="ts">
 import { defineEmits } from 'vue'
-import { CaretRight, Delete, Edit } from '@element-plus/icons-vue'
+import { CaretBottom, CaretRight, Delete, Edit } from '@element-plus/icons-vue'
 import AddItem from '../icons/AddItem.vue'
 import AddSubset from '../icons/AddSubset.vue'
 
 // Model
-const schemaKey = defineModel('schemaKey')
-const schemaType = defineModel('schemaType')
+const schemaKey = defineModel<string>('schemaKey')
+const schemaType = defineModel<string>('schemaType')
 const schemaValue = defineModel('schemaValue')
+const isExpanded = defineModel<boolean>('isExpanded')
 
 // Emits
-const emit = defineEmits([
-  'update:schemaKey',
-  'update:schemaType',
-  'update:schemaValue',
-  'toolAction',
-])
+const emit = defineEmits(['toolAction'])
 
 // 选项列表
 const options = [
@@ -59,19 +55,9 @@ const options = [
   { label: 'Array', value: 'Array' },
 ]
 
-// 更新 key 的方法
-const updateSchemaKey = (val: string) => {
-  emit('update:schemaKey', val)
-}
-
-// 更新 type 的方法
-const updateSchemaType = (val: string) => {
-  emit('update:schemaType', val)
-}
-
-// 更新 value 的方法
-const updateSchemaValue = (val: string) => {
-  emit('update:schemaValue', val)
+// 切换展开状态
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value
 }
 
 // 工具栏按钮的操作方法
@@ -96,7 +82,6 @@ const onToolAction = (action: string) => {
 
   &__toolbar {
     display: flex;
-    gap: 10px;
   }
 }
 </style>
