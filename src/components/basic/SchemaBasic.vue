@@ -1,10 +1,10 @@
 <template>
   <div class="schema-basic">
     <div class="schema-basic__key">
-      <el-input placeholder="key" :value="itemKey" @update:value="updateItemKey" />
+      <el-input placeholder="key" v-model="schemaKey" @update:value="updateSchemaKey" />
     </div>
     <div class="schema-basic__type">
-      <el-select :value="type" @update:value="updateType" placeholder="type">
+      <el-select v-model="schemaType" @update:value="updateSchemaType" placeholder="type">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -14,7 +14,7 @@
       </el-select>
     </div>
     <div class="schema-basic__value">
-      <el-input placeholder="value" :value="value" @update:value="updateValue" />
+      <el-input placeholder="value" v-model="schemaValue" @update:value="updateSchemaValue" />
     </div>
     <div class="schema-basic__semi">:</div>
     <div class="schema-basic__toolbar">
@@ -23,8 +23,8 @@
       <el-button text circle @click="onToolAction('addItem')">
         <AddItem />
       </el-button>
-      <el-button text circle @click="onToolAction('addSubsets')">
-        <AddSubsets />
+      <el-button text circle @click="onToolAction('addSubset')">
+        <AddSubset />
       </el-button>
       <el-button :icon="Delete" text circle @click="onToolAction('delete')" />
     </div>
@@ -32,29 +32,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
+import { defineEmits } from 'vue'
 import { CaretRight, Delete, Edit } from '@element-plus/icons-vue'
 import AddItem from '../icons/AddItem.vue'
-import AddSubsets from '../icons/AddSubset.vue'
+import AddSubset from '../icons/AddSubset.vue'
 
-// Props
-const props = defineProps({
-  itemKey: {
-    type: String,
-    default: '',
-  },
-  type: {
-    type: String,
-    default: '',
-  },
-  value: {
-    type: String,
-    default: '',
-  },
-})
+// Model
+const schemaKey = defineModel('schemaKey')
+const schemaType = defineModel('schemaType')
+const schemaValue = defineModel('schemaValue')
 
 // Emits
-const emit = defineEmits(['update:itemKey', 'update:type', 'update:value', 'toolAction'])
+const emit = defineEmits([
+  'update:schemaKey',
+  'update:schemaType',
+  'update:schemaValue',
+  'toolAction',
+])
 
 // 选项列表
 const options = [
@@ -65,19 +59,19 @@ const options = [
   { label: 'Array', value: 'Array' },
 ]
 
-// 更新 itemKey 的方法
-const updateItemKey = (val: string) => {
-  emit('update:itemKey', val)
+// 更新 key 的方法
+const updateSchemaKey = (val: string) => {
+  emit('update:schemaKey', val)
 }
 
 // 更新 type 的方法
-const updateType = (val: string) => {
-  emit('update:type', val)
+const updateSchemaType = (val: string) => {
+  emit('update:schemaType', val)
 }
 
 // 更新 value 的方法
-const updateValue = (val: string) => {
-  emit('update:value', val)
+const updateSchemaValue = (val: string) => {
+  emit('update:schemaValue', val)
 }
 
 // 工具栏按钮的操作方法

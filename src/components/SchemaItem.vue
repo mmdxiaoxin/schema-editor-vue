@@ -1,6 +1,6 @@
 <template>
   <schema-basic
-    v-model:itemKey="key"
+    v-model:schema-key="key"
     v-model:type="type"
     v-model:value="value"
     @toolAction="handleToolAction"
