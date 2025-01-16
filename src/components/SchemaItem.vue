@@ -1,8 +1,8 @@
 <template>
   <schema-basic
     v-model:schema-key="key"
-    v-model:type="type"
-    v-model:value="value"
+    v-model:schema-type="type"
+    v-model:schema-value="value"
     @toolAction="handleToolAction"
   />
 </template>
