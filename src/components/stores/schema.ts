@@ -1,18 +1,24 @@
 import { defineStore } from 'pinia'
-import type { FlatSchema, Schema, SchemaCollapse } from '../types/schema'
+import type { FlatSchema, Schema } from '../types/schema'
 import { flattenSchema, handleSchema } from '../utils'
 
 export const useSchemaStore = defineStore('schema', {
   state: (): {
     schema: Schema
-    collapse: SchemaCollapse
+    collapse: string[]
   } => ({
     schema: {} as Schema,
-    collapse: {},
+    collapse: [],
   }),
   getters: {
     flattenSchema(state): FlatSchema[] {
-      return flattenSchema(state.schema)
+      const flattened = flattenSchema(state.schema)
+      return flattened.filter((item) => {
+        // 检查当前项的 keyPathString 是否以 collapse 中任何一个值作为前缀
+        return !state.collapse.some((collapsedPath) =>
+          item.keyPathString.startsWith(`${collapsedPath}.`),
+        )
+      })
     },
   },
   actions: {
@@ -22,6 +28,16 @@ export const useSchemaStore = defineStore('schema', {
     AddChild(keyPath: string[]) {},
     AddItem(keyPath: string[]) {},
     DeleteItem(keyPath: string[]) {},
+    ChangeCollapse(keyPathString: string, value: boolean) {
+      if (value) {
+        this.collapse.push(keyPathString)
+      } else {
+        const index = this.collapse.indexOf(keyPathString)
+        if (index > -1) {
+          this.collapse.splice(index, 1)
+        }
+      }
+    },
     ChangeType(keyPath: string[], type: string) {},
     ChangeRequired(keyPath: string[], required: boolean) {},
     ChangeEnum(keyPath: string[], value: string[]) {},

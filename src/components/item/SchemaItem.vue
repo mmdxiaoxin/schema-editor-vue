@@ -20,21 +20,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import SchemaBasic from '../basic/SchemaBasic.vue'
 import type { FlatSchema } from '../types/schema'
+import { useSchemaStore } from '../stores/schema'
 
 export interface SchemaItemProps {
   item: FlatSchema
 }
 
-const isExpand = ref(false)
+const props = withDefaults(defineProps<SchemaItemProps>(), {})
+const schemaStore = useSchemaStore()
+
+// 展开收起
+const isCollapse = ref(false)
+const isExpand = computed({
+  get: () => !isCollapse.value,
+  set: (value: boolean) => {
+    isCollapse.value = !value
+  },
+})
+watch(
+  () => isCollapse.value,
+  (val) => {
+    schemaStore.ChangeCollapse(props.item.keyPathString, val)
+    console.log(schemaStore.collapse)
+  },
+)
 
 const handleToolAction = (action: string) => {
   console.log(action)
 }
-
-const props = withDefaults(defineProps<SchemaItemProps>(), {})
 
 const tabLeft = computed(() => `${props.item.keyPath.length * 20}px`)
 </script>

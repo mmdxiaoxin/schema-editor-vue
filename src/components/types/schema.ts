@@ -48,7 +48,3 @@ export interface FlatSchema {
   maxItems?: number
   uniqueItems?: boolean
 }
-
-export interface SchemaCollapse {
-  [key: string]: boolean
-}
