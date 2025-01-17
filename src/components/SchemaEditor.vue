@@ -1,14 +1,19 @@
 <template>
-  <RecycleScroller class="scroller" :items="list" :item-size="32" key-field="id" v-slot="{ item }">
+  <RecycleScroller
+    class="scroller"
+    :items="schemaStore.flattenSchema"
+    :item-size="32"
+    key-field="id"
+    v-slot="{ item }"
+  >
     <SchemaItem :item="item" />
   </RecycleScroller>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import type { Schema } from '@/components/types/schema'
 import SchemaItem from './item/SchemaItem.vue'
-import type Schema from '@/components/types/schema'
-import { flattenSchema } from './utils'
+import { useSchemaStore } from './stores/schema'
 
 const schemaData: Schema = {
   title: 'Root Schema',
@@ -26,9 +31,8 @@ const schemaData: Schema = {
   },
 }
 
-const initData = flattenSchema(schemaData)
-
-const list = ref(initData)
+const schemaStore = useSchemaStore()
+schemaStore.initSchema(schemaData)
 </script>
 
 <style scoped></style>
