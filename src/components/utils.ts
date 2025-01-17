@@ -27,7 +27,7 @@ export interface FlatSchema {
 }
 
 // 扁平化的函数，加入索引参数
-const flattenSchema = (
+export const flattenSchema = (
   schema: Schema,
   parentKey: string[] = [],
   index = { value: 0 },
