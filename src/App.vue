@@ -1,10 +1,10 @@
 <template>
   <div>
     <h1>JSON Editor</h1>
-    <SchemaItem />
+    <SchemaEditor />
   </div>
 </template>
 
 <script lang="ts" setup>
-import SchemaItem from './components/SchemaItem.vue'
+import SchemaEditor from './components/SchemaEditor.vue'
 </script>
