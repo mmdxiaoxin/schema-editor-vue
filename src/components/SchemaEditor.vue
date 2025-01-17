@@ -3,8 +3,10 @@
     class="scroller"
     :items="schemaStore.flattenSchema"
     :item-size="32"
+    :buffer="5"
     key-field="id"
     v-slot="{ item }"
+    style="height: 100vh; overflow-y: auto"
   >
     <SchemaItem :item="item" />
   </RecycleScroller>
@@ -15,24 +17,20 @@ import type { Schema } from '@/components/types/schema'
 import SchemaItem from './item/SchemaItem.vue'
 import { useSchemaStore } from './stores/schema'
 
-const schemaData: Schema = {
-  title: 'Root Schema',
+export interface SchemaEditorProps {
+  initData?: Schema
+}
+
+// Props
+const props = defineProps<SchemaEditorProps>()
+
+const defaultSchema: Schema = {
   type: 'object',
-  properties: {
-    name: { type: 'string' },
-    age: { type: 'number' },
-    address: {
-      type: 'object',
-      properties: {
-        street: { type: 'string' },
-        city: { type: 'string' },
-      },
-    },
-  },
+  properties: {},
 }
 
 const schemaStore = useSchemaStore()
-schemaStore.initSchema(schemaData)
+schemaStore.initSchema(props.initData || defaultSchema)
 </script>
 
 <style scoped></style>

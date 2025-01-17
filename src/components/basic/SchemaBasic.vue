@@ -43,7 +43,7 @@ import { CaretBottom, CaretRight, Delete, Edit } from '@element-plus/icons-vue'
 import AddItem from '../icons/AddItem.vue'
 import AddSubset from '../icons/AddSubset.vue'
 
-interface SchemaBasicProps {
+export interface SchemaBasicProps {
   hasValue?: boolean
   hasName?: boolean
   hasSubset?: boolean
