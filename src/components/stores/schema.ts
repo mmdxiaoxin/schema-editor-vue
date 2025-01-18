@@ -1,14 +1,17 @@
 import { defineStore } from 'pinia'
 import type { FlatSchema, Schema } from '../types/schema'
-import { flattenSchema, handleSchema } from '../utils'
+import { flattenSchema, getDefaultSchema, handleSchema } from '../utils'
+import { clone } from 'lodash-es'
 
 export const useSchemaStore = defineStore('schema', {
   state: (): {
     schema: Schema
     collapse: string[]
+    childCounter: number
   } => ({
     schema: {} as Schema,
     collapse: [],
+    childCounter: 0,
   }),
   getters: {
     flattenSchema(state): FlatSchema[] {
@@ -37,7 +40,50 @@ export const useSchemaStore = defineStore('schema', {
     initSchema(schema: Schema) {
       this.schema = handleSchema(schema)
     },
-    AddChild(keyPath: string[]) {},
+    AddChild(keyPath: string[]) {
+      // 检查 keyPath 是否有效
+      if (!Array.isArray(keyPath) || keyPath.length === 0) {
+        console.warn('Invalid keyPath:', keyPath)
+        return
+      }
+
+      const childName = `child_${this.childCounter++}`
+      const clonedSchema = clone(this.schema)
+
+      // 递归解析 keyPath，找到目标节点
+      let currentField = clonedSchema
+      for (const key of keyPath) {
+        if (key === '[]') {
+          if (Array.isArray(currentField)) {
+            currentField = currentField[0] // 如果是数组，取第一个元素
+          } else {
+            console.warn('Invalid array path in keyPath:', keyPath)
+            return
+          }
+        } else if (currentField && typeof currentField === 'object' && currentField.properties) {
+          currentField = currentField.properties[key]
+        } else {
+          console.warn('Invalid object path in keyPath:', keyPath)
+          return
+        }
+      }
+
+      console.log('Current Field:', currentField)
+
+      // 确保当前字段有效并是一个对象
+      if (currentField && typeof currentField === 'object') {
+        if (!currentField.properties) {
+          currentField.properties = {}
+        }
+        currentField.properties[childName] = getDefaultSchema('string')
+      } else {
+        console.warn('Cannot add child to non-object field:', currentField)
+        return
+      }
+
+      console.log('Updated Schema:', clonedSchema)
+      this.schema = clonedSchema // 响应式更新
+    },
     AddItem(keyPath: string[]) {},
     DeleteItem(keyPath: string[]) {},
     ChangeCollapse(keyPathString: string, value: boolean) {
