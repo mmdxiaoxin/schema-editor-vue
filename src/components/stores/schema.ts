@@ -44,13 +44,24 @@ export const useSchemaStore = defineStore('schema', {
     },
     AddChild(keyPath: string[]) {
       // 检查 keyPath 是否有效
-      if (!Array.isArray(keyPath) || keyPath.length === 0) {
+      if (!Array.isArray(keyPath)) {
         console.warn('Invalid keyPath:', keyPath)
         return
       }
 
       const childName = `child_${this.childCounter++}`
       const clonedSchema = clone(this.schema)
+
+      // 根节点特殊处理
+      if (keyPath.length === 0) {
+        if (!clonedSchema.properties) {
+          clonedSchema.properties = {} // 初始化根节点的 properties
+        }
+        clonedSchema.properties[childName] = getDefaultSchema('string')
+        console.log('Updated Schema (Root Node):', clonedSchema)
+        this.schema = clonedSchema // 响应式更新
+        return
+      }
 
       // 递归解析 keyPath，找到目标节点
       let currentField = clonedSchema
