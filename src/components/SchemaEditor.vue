@@ -3,10 +3,10 @@
     class="scroller"
     :items="schemaStore.flattenSchema"
     :item-size="32"
-    :buffer="5"
+    :buffer="20"
     key-field="id"
     v-slot="{ item }"
-    style="height: 100vh; overflow-y: auto"
+    style="height: 90vh; overflow-y: auto"
   >
     <SchemaItem :item="item" />
   </RecycleScroller>
