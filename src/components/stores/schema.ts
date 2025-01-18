@@ -14,9 +14,21 @@ export const useSchemaStore = defineStore('schema', {
     flattenSchema(state): FlatSchema[] {
       const flattened = flattenSchema(state.schema)
       return flattened.filter((item) => {
+        // 如果是根节点（keyPathString为空字符串），直接保留
+        if (item.keyPathString === '') {
+          return true
+        }
+
+        // 针对 collapse 中的根节点进行特殊处理
+        const isRootCollapsed = state.collapse.includes('')
+        if (isRootCollapsed && item.keyPathString !== '') {
+          return false // 根节点收缩时，过滤掉所有非根节点
+        }
+
         // 检查当前项的 keyPathString 是否以 collapse 中任何一个值作为前缀
-        return !state.collapse.some((collapsedPath) =>
-          item.keyPathString.startsWith(`${collapsedPath}.`),
+        return !state.collapse.some(
+          (collapsedPath) =>
+            collapsedPath !== '' && item.keyPathString.startsWith(`${collapsedPath}.`),
         )
       })
     },
