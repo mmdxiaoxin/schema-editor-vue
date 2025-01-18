@@ -43,7 +43,7 @@ export interface SchemaItemProps {
 
 const props = withDefaults(defineProps<SchemaItemProps>(), {})
 
-const itemName = ref(props.item.keyPath[props.item.keyPath.length - 1])
+const itemName = ref(props.item.name)
 const itemType = ref(props.item.type)
 const itemValue = ref(props.item.value)
 const itemKeyPath = shallowRef(props.item.keyPath)
@@ -115,7 +115,6 @@ const handleToolAction = (action: string) => {
       schemaStore.DeleteItem(itemKeyPath.value)
       break
   }
-  console.log(action, itemKeyPath.value)
 }
 
 const tabLeft = computed(() => `${props.item.keyPath.length * 20}px`)

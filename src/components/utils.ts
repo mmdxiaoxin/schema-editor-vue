@@ -14,6 +14,7 @@ export const flattenSchema = (
     id: index.value++,
     keyPath: parentKey,
     keyPathString: parentKey.join('.'),
+    name: parentKey.length > 0 ? parentKey[parentKey.length - 1] : 'ROOT',
     title: schema.title,
     type: schema.type,
     value: schema.value,
