@@ -26,19 +26,18 @@
         @click="toggleExpand"
       />
       <el-button :icon="Edit" text circle @click="onToolAction('edit')" />
-      <el-button text circle @click="onToolAction('addItem')">
+      <el-button v-if="hasAddItem" text circle @click="onToolAction('addItem')">
         <AddItem />
       </el-button>
-      <el-button text circle @click="onToolAction('addSubset')">
+      <el-button v-if="hasAddSubset" text circle @click="onToolAction('addSubset')">
         <AddSubset />
       </el-button>
-      <el-button :icon="Delete" text circle @click="onToolAction('delete')" />
+      <el-button v-if="hasDelete" :icon="Delete" text circle @click="onToolAction('delete')" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineEmits, withDefaults } from 'vue'
 import { CaretBottom, CaretRight, Delete, Edit } from '@element-plus/icons-vue'
 import AddItem from '../icons/AddItem.vue'
 import AddSubset from '../icons/AddSubset.vue'
@@ -47,6 +46,9 @@ export interface SchemaBasicProps {
   hasName?: boolean
   hasValue?: boolean
   hasSubset?: boolean
+  hasAddItem?: boolean
+  hasAddSubset?: boolean
+  hasDelete?: boolean
   nameDisabled?: boolean
   typeDisabled?: boolean
   valueDisabled?: boolean
@@ -57,6 +59,9 @@ withDefaults(defineProps<SchemaBasicProps>(), {
   hasName: true,
   hasValue: true,
   hasSubset: true,
+  hasAddItem: true,
+  hasAddSubset: true,
+  hasDelete: true,
   nameDisabled: false,
   typeDisabled: false,
   valueDisabled: false,

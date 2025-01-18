@@ -6,6 +6,9 @@
       name-disabled
       :hasValue="hasValue"
       :hasSubset="hasSubset"
+      :has-add-item="hasAddItem"
+      :has-add-subset="hasAddSubset"
+      :has-delete="false"
       v-model:item-type="itemType"
       v-model:item-value="itemValue"
       v-model:is-expanded="isExpand"
@@ -17,6 +20,8 @@
     <schema-basic
       :hasValue="hasValue"
       :hasSubset="hasSubset"
+      :has-add-item="hasAddItem"
+      :has-add-subset="hasAddSubset"
       v-model:item-name="itemName"
       v-model:item-type="itemType"
       v-model:item-value="itemValue"
@@ -27,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import SchemaBasic from '../basic/SchemaBasic.vue'
 import type { FlatSchema } from '../types/schema'
 import { useSchemaStore } from '../stores/schema'
@@ -41,6 +46,7 @@ const props = withDefaults(defineProps<SchemaItemProps>(), {})
 const itemName = ref(props.item.keyPath[props.item.keyPath.length - 1])
 const itemType = ref(props.item.type)
 const itemValue = ref(props.item.value)
+const itemKeyPath = shallowRef(props.item.keyPath)
 const hasValue = computed(() => {
   switch (itemType.value) {
     case 'object':
@@ -51,6 +57,24 @@ const hasValue = computed(() => {
   }
 })
 const hasSubset = computed(() => {
+  switch (itemType.value) {
+    case 'object':
+    case 'array':
+      return true
+    default:
+      return false
+  }
+})
+const hasAddItem = computed(() => {
+  switch (itemType.value) {
+    case 'object':
+    case 'array':
+      return true
+    default:
+      return false
+  }
+})
+const hasAddSubset = computed(() => {
   switch (itemType.value) {
     case 'object':
     case 'array':
@@ -78,8 +102,20 @@ watch(
   },
 )
 
+// 工具栏操作
 const handleToolAction = (action: string) => {
-  console.log(action)
+  switch (action) {
+    case 'addItem':
+      schemaStore.AddItem(itemKeyPath.value)
+      break
+    case 'addSubset':
+      schemaStore.AddChild(itemKeyPath.value)
+      break
+    case 'delete':
+      schemaStore.DeleteItem(itemKeyPath.value)
+      break
+  }
+  console.log(action, itemKeyPath.value)
 }
 
 const tabLeft = computed(() => `${props.item.keyPath.length * 20}px`)
