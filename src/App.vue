@@ -11,5 +11,5 @@ import type { Schema } from './components/types/schema'
 import commonData from '@/test/common.json'
 import largeData from '@/test/large.json'
 
-const schemaData: Schema = largeData
+const schemaData: Schema = commonData
 </script>

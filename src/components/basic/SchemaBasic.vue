@@ -78,11 +78,11 @@ const emit = defineEmits(['toolAction'])
 
 // 选项列表
 const options = [
-  { label: 'String', value: 'String' },
-  { label: 'Number', value: 'Number' },
-  { label: 'Boolean', value: 'Boolean' },
-  { label: 'Object', value: 'Object' },
-  { label: 'Array', value: 'Array' },
+  { label: 'string', value: 'string' },
+  { label: 'number', value: 'number' },
+  { label: 'boolean', value: 'boolean' },
+  { label: 'object', value: 'object' },
+  { label: 'array', value: 'array' },
 ]
 
 // 切换展开状态

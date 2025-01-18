@@ -24,7 +24,7 @@ export interface Schema {
 }
 
 export interface FlatSchema {
-  id: number
+  id: string
   name: string
   keyPath: string[]
   keyPathString: string

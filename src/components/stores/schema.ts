@@ -8,10 +8,12 @@ export const useSchemaStore = defineStore('schema', {
     schema: Schema
     collapse: string[]
     childCounter: number
+    siblingCounter: number
   } => ({
     schema: {} as Schema,
     collapse: [],
     childCounter: 0,
+    siblingCounter: 0,
   }),
   getters: {
     flattenSchema(state): FlatSchema[] {
@@ -84,7 +86,54 @@ export const useSchemaStore = defineStore('schema', {
       console.log('Updated Schema:', clonedSchema)
       this.schema = clonedSchema // 响应式更新
     },
-    AddItem(keyPath: string[]) {},
+    AddItem(keyPath: string[]) {
+      // 检查 keyPath 是否有效
+      if (!Array.isArray(keyPath) || keyPath.length === 0) {
+        console.warn('Invalid keyPath:', keyPath)
+        return
+      }
+
+      const siblingName = `sibling_${this.siblingCounter++}` // 为新兄弟节点生成唯一名称
+      const clonedSchema = clone(this.schema)
+
+      // 递归解析 keyPath，找到目标节点的父级
+      let parentField = clonedSchema
+      for (let i = 0; i < keyPath.length - 1; i++) {
+        const key = keyPath[i]
+        if (key === '[]') {
+          if (Array.isArray(parentField)) {
+            parentField = parentField[0] // 如果是数组，取第一个元素
+          } else {
+            console.warn('Invalid array path in keyPath:', keyPath)
+            return
+          }
+        } else if (parentField && typeof parentField === 'object' && parentField.properties) {
+          parentField = parentField.properties[key]
+        } else {
+          console.warn('Invalid object path in keyPath:', keyPath)
+          return
+        }
+      }
+
+      console.log('Parent Field:', parentField)
+
+      // 确保父级字段有效并是一个对象
+      if (
+        parentField &&
+        typeof parentField === 'object' &&
+        parentField.properties &&
+        keyPath[keyPath.length - 1]
+      ) {
+        const siblingSchema = getDefaultSchema('string') // 默认类型为 string 的兄弟节点
+        parentField.properties[siblingName] = siblingSchema
+      } else {
+        console.warn('Cannot add sibling to non-object field:', parentField)
+        return
+      }
+
+      console.log('Updated Schema:', clonedSchema)
+      this.schema = clonedSchema // 响应式更新
+    },
     DeleteItem(keyPath: string[]) {},
     ChangeCollapse(keyPathString: string, value: boolean) {
       if (value) {
@@ -96,7 +145,69 @@ export const useSchemaStore = defineStore('schema', {
         }
       }
     },
-    ChangeType(keyPath: string[], type: string) {},
+    ChangeType(keyPath: string[], type: string) {
+      // 检查 keyPath 是否有效
+      if (!Array.isArray(keyPath) || keyPath.length === 0) {
+        console.warn('Invalid keyPath:', keyPath)
+        return
+      }
+
+      const clonedSchema = clone(this.schema)
+
+      // 递归解析 keyPath，找到目标节点
+      let currentField = clonedSchema
+      for (const key of keyPath) {
+        if (key === '[]') {
+          if (Array.isArray(currentField)) {
+            currentField = currentField[0] // 如果是数组，取第一个元素
+          } else {
+            console.warn('Invalid array path in keyPath:', keyPath)
+            return
+          }
+        } else if (currentField && typeof currentField === 'object' && currentField.properties) {
+          currentField = currentField.properties[key]
+        } else {
+          console.warn('Invalid object path in keyPath:', keyPath)
+          return
+        }
+      }
+
+      console.log('Current Field Before Type Change:', currentField)
+
+      // 确保当前字段有效并是一个对象
+      if (currentField && typeof currentField === 'object') {
+        // 根据新的类型生成默认 schema
+        const newSchema = getDefaultSchema(type)
+
+        // 保留公共属性并清空子项
+        currentField.type = newSchema.type
+        currentField.title = newSchema.title || currentField.title
+        currentField.description = newSchema.description || currentField.description
+        currentField.default = newSchema.default || undefined
+
+        // 清空子项
+        currentField.value = undefined
+        if ('properties' in currentField) {
+          delete currentField.properties
+        }
+        if ('items' in currentField) {
+          delete currentField.items
+        }
+
+        // 如果新类型是 object 或 array，初始化相应子项
+        if (type === 'object') {
+          currentField.properties = newSchema.properties || {}
+        } else if (type === 'array') {
+          currentField.items = newSchema.items || getDefaultSchema('string')
+        }
+      } else {
+        console.warn('Cannot change type of non-object field:', currentField)
+        return
+      }
+
+      console.log('Updated Schema After Type Change:', clonedSchema)
+      this.schema = clonedSchema // 响应式更新
+    },
     ChangeRequired(keyPath: string[], required: boolean) {},
     ChangeEnum(keyPath: string[], value: string[]) {},
     ChangeEnumDesc(keyPath: string[], value: string) {},

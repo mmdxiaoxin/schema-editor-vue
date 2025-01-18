@@ -9,9 +9,10 @@
       :has-add-item="hasAddItem"
       :has-add-subset="hasAddSubset"
       :has-delete="false"
-      v-model:item-type="itemType"
-      v-model:item-value="itemValue"
+      :item-type="itemType"
+      :item-value="itemValue"
       v-model:is-expanded="isExpand"
+      @update:item-type="updateType"
       @toolAction="handleToolAction"
     />
   </div>
@@ -22,10 +23,11 @@
       :hasSubset="hasSubset"
       :has-add-item="hasAddItem"
       :has-add-subset="hasAddSubset"
-      v-model:item-name="itemName"
-      v-model:item-type="itemType"
-      v-model:item-value="itemValue"
+      :item-name="itemName"
+      :item-type="itemType"
+      :item-value="itemValue"
       v-model:is-expanded="isExpand"
+      @update:item-type="updateType"
       @toolAction="handleToolAction"
     />
   </div>
@@ -44,9 +46,33 @@ export interface SchemaItemProps {
 const props = withDefaults(defineProps<SchemaItemProps>(), {})
 
 const itemName = ref(props.item.name)
+watch(
+  () => props.item.name,
+  (val) => {
+    itemName.value = val
+  },
+)
 const itemType = ref(props.item.type)
+watch(
+  () => props.item.type,
+  (val) => {
+    itemType.value = val
+  },
+)
 const itemValue = ref(props.item.value)
+watch(
+  () => props.item.value,
+  (val) => {
+    itemValue.value = val
+  },
+)
 const itemKeyPath = shallowRef(props.item.keyPath)
+watch(
+  () => props.item.keyPath,
+  (val) => {
+    itemKeyPath.value = val
+  },
+)
 const hasValue = computed(() => {
   switch (itemType.value) {
     case 'object':
@@ -101,6 +127,11 @@ watch(
     console.log(schemaStore.collapse)
   },
 )
+
+// 切换类型
+const updateType = (type: string) => {
+  schemaStore.ChangeType(itemKeyPath.value, type)
+}
 
 // 工具栏操作
 const handleToolAction = (action: string) => {

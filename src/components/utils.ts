@@ -1,19 +1,16 @@
 import type { FlatSchema, Schema } from '@/components/types/schema'
 import { cloneDeep } from 'lodash-es'
 
-// 扁平化的函数，加入索引参数
-export const flattenSchema = (
-  schema: Schema,
-  parentKey: string[] = [],
-  index = { value: 0 },
-): FlatSchema[] => {
+// 扁平化的函数，生成稳定的唯一标识符
+export const flattenSchema = (schema: Schema, parentKey: string[] = []): FlatSchema[] => {
   let result: FlatSchema[] = []
 
   // 当前节点
+  const keyPathString = parentKey.join('.')
   const flatNode: FlatSchema = {
-    id: index.value++,
+    id: keyPathString || 'ROOT', // 使用稳定的 keyPathString 作为 ID
     keyPath: parentKey,
-    keyPathString: parentKey.join('.'),
+    keyPathString,
     name: parentKey.length > 0 ? parentKey[parentKey.length - 1] : 'ROOT',
     title: schema.title,
     type: schema.type,
@@ -45,20 +42,14 @@ export const flattenSchema = (
   if (schema.properties) {
     for (const key in schema.properties) {
       if (schema.properties[key]) {
-        result = result.concat(
-          flattenSchema(
-            schema.properties[key]!,
-            [...parentKey, key], // 通过数组扩展 parentKey 构造路径
-            index,
-          ),
-        )
+        result = result.concat(flattenSchema(schema.properties[key]!, [...parentKey, key]))
       }
     }
   }
 
   // 如果有子项（items），递归扁平化
   if (schema.items) {
-    result = result.concat(flattenSchema(schema.items, [...parentKey, '[]'], index))
+    result = result.concat(flattenSchema(schema.items, [...parentKey, '[]']))
   }
 
   return result
