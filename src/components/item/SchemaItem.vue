@@ -1,6 +1,6 @@
 <template>
   <!-- 根节点 -->
-  <div v-if="props.item.keyPath.length === 0">
+  <div class="schema-item" v-if="props.item.keyPath.length === 0">
     <schema-basic
       item-name="ROOT"
       name-disabled
@@ -16,7 +16,7 @@
     />
   </div>
   <!-- 普通节点 -->
-  <div v-else :style="`margin-left: ${tabLeft}`" style="display: flex">
+  <div class="schema-item" v-else>
     <schema-basic
       :hasValue="false"
       :hasSubset="hasSubset"
@@ -24,6 +24,7 @@
       :has-add-subset="hasAddSubset"
       :item-name="itemName"
       :item-type="itemType"
+      :indentation="indentation"
       v-model:is-expanded="isExpand"
       @update:item-type="updateType"
       @toolAction="handleToolAction"
@@ -64,15 +65,7 @@ watch(
     itemKeyPath.value = val
   },
 )
-const hasValue = computed(() => {
-  switch (itemType.value) {
-    case 'object':
-    case 'array':
-      return false
-    default:
-      return true
-  }
-})
+const indentation = computed(() => props.item.keyPath.length)
 const hasSubset = computed(() => {
   switch (itemType.value) {
     case 'object':
@@ -136,8 +129,12 @@ const handleToolAction = (action: string) => {
       break
   }
 }
-
-const tabLeft = computed(() => `${props.item.keyPath.length * 20}px`)
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.schema-item {
+  &:hover {
+    background-color: var(--el-color-primary-light-8);
+  }
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="schema-basic">
+  <div class="schema-basic" :style="{ marginLeft: indentation * 20 + 'px' }">
     <div v-if="hasName" class="schema-basic__name">
       <el-input placeholder="name" v-model="itemName" :disabled="nameDisabled" />
     </div>
@@ -52,6 +52,7 @@ export interface SchemaBasicProps {
   nameDisabled?: boolean
   typeDisabled?: boolean
   valueDisabled?: boolean
+  indentation?: number
 }
 
 // Props
@@ -65,6 +66,7 @@ withDefaults(defineProps<SchemaBasicProps>(), {
   nameDisabled: false,
   typeDisabled: false,
   valueDisabled: false,
+  indentation: 0,
 })
 
 // Model
