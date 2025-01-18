@@ -1,6 +1,7 @@
 export interface Schema {
   title?: string
   type: string
+  value?: any
   properties?: Record<string, Schema>
   required?: string[]
   description?: string
@@ -28,6 +29,7 @@ export interface FlatSchema {
   keyPathString: string
   title?: string
   type: string
+  value?: any
   properties?: Record<string, Schema>
   required?: string[]
   description?: string

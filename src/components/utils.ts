@@ -16,6 +16,7 @@ export const flattenSchema = (
     keyPathString: parentKey.join('.'),
     title: schema.title,
     type: schema.type,
+    value: schema.value,
     properties: schema.properties,
     required: schema.required,
     description: schema.description,

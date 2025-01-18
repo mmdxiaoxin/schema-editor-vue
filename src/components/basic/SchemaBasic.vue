@@ -1,10 +1,10 @@
 <template>
   <div class="schema-basic">
     <div v-if="hasName" class="schema-basic__name">
-      <el-input placeholder="name" v-model="itemName" />
+      <el-input placeholder="name" v-model="itemName" :disabled="nameDisabled" />
     </div>
     <div class="schema-basic__type">
-      <el-select v-model="itemType" placeholder="type">
+      <el-select v-model="itemType" placeholder="type" :disabled="typeDisabled">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -14,7 +14,7 @@
       </el-select>
     </div>
     <div v-if="hasValue" class="schema-basic__value">
-      <el-input placeholder="value" v-model="itemValue" />
+      <el-input placeholder="value" v-model="itemValue" :disabled="valueDisabled" />
     </div>
     <div class="schema-basic__semi">:</div>
     <div class="schema-basic__toolbar">
@@ -44,9 +44,12 @@ import AddItem from '../icons/AddItem.vue'
 import AddSubset from '../icons/AddSubset.vue'
 
 export interface SchemaBasicProps {
-  hasValue?: boolean
   hasName?: boolean
+  hasValue?: boolean
   hasSubset?: boolean
+  nameDisabled?: boolean
+  typeDisabled?: boolean
+  valueDisabled?: boolean
 }
 
 // Props
@@ -54,6 +57,9 @@ withDefaults(defineProps<SchemaBasicProps>(), {
   hasName: true,
   hasValue: true,
   hasSubset: true,
+  nameDisabled: false,
+  typeDisabled: false,
+  valueDisabled: false,
 })
 
 // Model

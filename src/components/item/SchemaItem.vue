@@ -1,18 +1,25 @@
 <template>
+  <!-- 根节点 -->
   <div v-if="props.item.keyPath.length === 0">
     <schema-basic
       item-name="ROOT"
-      v-model:item-type="props.item.type"
-      v-model:item-value="props.item.title"
+      name-disabled
+      :hasValue="hasValue"
+      :hasSubset="hasSubset"
+      v-model:item-type="itemType"
+      v-model:item-value="itemValue"
       v-model:is-expanded="isExpand"
       @toolAction="handleToolAction"
     />
   </div>
+  <!-- 普通节点 -->
   <div v-else :style="`margin-left: ${tabLeft}`" style="display: flex">
     <schema-basic
-      v-model:item-name="props.item.keyPath[props.item.keyPath.length - 1]"
-      v-model:item-type="props.item.type"
-      v-model:item-value="props.item.title"
+      :hasValue="hasValue"
+      :hasSubset="hasSubset"
+      v-model:item-name="itemName"
+      v-model:item-type="itemType"
+      v-model:item-value="itemValue"
       v-model:is-expanded="isExpand"
       @toolAction="handleToolAction"
     />
@@ -30,6 +37,29 @@ export interface SchemaItemProps {
 }
 
 const props = withDefaults(defineProps<SchemaItemProps>(), {})
+
+const itemName = ref(props.item.keyPath[props.item.keyPath.length - 1])
+const itemType = ref(props.item.type)
+const itemValue = ref(props.item.value)
+const hasValue = computed(() => {
+  switch (itemType.value) {
+    case 'object':
+    case 'array':
+      return false
+    default:
+      return true
+  }
+})
+const hasSubset = computed(() => {
+  switch (itemType.value) {
+    case 'object':
+    case 'array':
+      return true
+    default:
+      return false
+  }
+})
+
 const schemaStore = useSchemaStore()
 
 // 展开收起
