@@ -134,7 +134,62 @@ export const useSchemaStore = defineStore('schema', {
       console.log('Updated Schema:', clonedSchema)
       this.schema = clonedSchema // 响应式更新
     },
-    DeleteItem(keyPath: string[]) {},
+    DeleteItem(keyPath: string[]) {
+      // 检查 keyPath 是否有效
+      if (!Array.isArray(keyPath) || keyPath.length === 0) {
+        console.warn('Invalid keyPath:', keyPath)
+        return
+      }
+
+      const clonedSchema = clone(this.schema)
+
+      // 递归解析 keyPath，找到目标节点的父级
+      let parentField = clonedSchema
+      for (let i = 0; i < keyPath.length - 1; i++) {
+        const key = keyPath[i]
+        if (key === '[]') {
+          if (Array.isArray(parentField)) {
+            parentField = parentField[0] // 如果是数组，取第一个元素
+          } else {
+            console.warn('Invalid array path in keyPath:', keyPath)
+            return
+          }
+        } else if (parentField && typeof parentField === 'object' && parentField.properties) {
+          parentField = parentField.properties[key]
+        } else {
+          console.warn('Invalid object path in keyPath:', keyPath)
+          return
+        }
+      }
+
+      const targetKey = keyPath[keyPath.length - 1] // 要删除的键
+      console.log('Parent Field:', parentField)
+
+      // 确保父级字段有效并包含目标节点
+      if (
+        parentField &&
+        typeof parentField === 'object' &&
+        (parentField.properties || parentField.items)
+      ) {
+        if (parentField.properties && targetKey in parentField.properties) {
+          delete parentField.properties[targetKey]
+        } else if (
+          Array.isArray(parentField.items) &&
+          Number(targetKey) < parentField.items.length
+        ) {
+          parentField.items.splice(Number(targetKey), 1)
+        } else {
+          console.warn('Cannot delete non-existent field:', targetKey)
+          return
+        }
+      } else {
+        console.warn('Cannot delete field from non-object field:', parentField)
+        return
+      }
+
+      console.log('Updated Schema After Deletion:', clonedSchema)
+      this.schema = clonedSchema // 响应式更新
+    },
     ChangeCollapse(keyPathString: string, value: boolean) {
       if (value) {
         this.collapse.push(keyPathString)
