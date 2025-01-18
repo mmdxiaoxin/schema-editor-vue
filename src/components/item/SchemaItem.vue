@@ -92,12 +92,10 @@ const hasSubset = computed(() => {
   }
 })
 const hasAddItem = computed(() => {
-  switch (itemType.value) {
-    case 'object':
-    case 'array':
-      return true
-    default:
-      return false
+  if (itemKeyPath.value.length === 0) {
+    return false
+  } else {
+    return true
   }
 })
 const hasAddSubset = computed(() => {
