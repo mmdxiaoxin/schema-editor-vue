@@ -4,13 +4,12 @@
     <schema-basic
       item-name="ROOT"
       name-disabled
-      :hasValue="hasValue"
+      :hasValue="false"
       :hasSubset="hasSubset"
       :has-add-item="hasAddItem"
       :has-add-subset="hasAddSubset"
       :has-delete="false"
       :item-type="itemType"
-      :item-value="itemValue"
       v-model:is-expanded="isExpand"
       @update:item-type="updateType"
       @toolAction="handleToolAction"
@@ -19,13 +18,12 @@
   <!-- 普通节点 -->
   <div v-else :style="`margin-left: ${tabLeft}`" style="display: flex">
     <schema-basic
-      :hasValue="hasValue"
+      :hasValue="false"
       :hasSubset="hasSubset"
       :has-add-item="hasAddItem"
       :has-add-subset="hasAddSubset"
       :item-name="itemName"
       :item-type="itemType"
-      :item-value="itemValue"
       v-model:is-expanded="isExpand"
       @update:item-type="updateType"
       @toolAction="handleToolAction"
@@ -57,13 +55,6 @@ watch(
   () => props.item.type,
   (val) => {
     itemType.value = val
-  },
-)
-const itemValue = ref(props.item.value)
-watch(
-  () => props.item.value,
-  (val) => {
-    itemValue.value = val
   },
 )
 const itemKeyPath = shallowRef(props.item.keyPath)

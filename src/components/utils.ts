@@ -14,7 +14,6 @@ export const flattenSchema = (schema: Schema, parentKey: string[] = []): FlatSch
     name: parentKey.length > 0 ? parentKey[parentKey.length - 1] : 'ROOT',
     title: schema.title,
     type: schema.type,
-    value: schema.value,
     properties: schema.properties,
     required: schema.required,
     description: schema.description,
@@ -30,7 +29,7 @@ export const flattenSchema = (schema: Schema, parentKey: string[] = []): FlatSch
     format: schema.format,
     exclusiveMinimum: schema.exclusiveMinimum,
     exclusiveMaximum: schema.exclusiveMaximum,
-    items: schema.items,
+    items: Array.isArray(schema.items) ? undefined : schema.items, // 如果 items 是数组，则当前节点不需要 items 字段
     minItems: schema.minItems,
     maxItems: schema.maxItems,
     uniqueItems: schema.uniqueItems,
@@ -49,7 +48,13 @@ export const flattenSchema = (schema: Schema, parentKey: string[] = []): FlatSch
 
   // 如果有子项（items），递归扁平化
   if (schema.items) {
-    result = result.concat(flattenSchema(schema.items, [...parentKey, '[]']))
+    if (Array.isArray(schema.items)) {
+      schema.items.forEach((item, index) => {
+        result = result.concat(flattenSchema(item, [...parentKey, `items[${index}]`]))
+      })
+    } else {
+      result = result.concat(flattenSchema(schema.items, [...parentKey, 'items']))
+    }
   }
 
   return result
@@ -93,44 +98,46 @@ export function getDefaultSchema(type: string): Schema {
 export const handleSchema = (schema: Schema): Schema => {
   const clonedSchema = cloneDeep(schema)
 
-  if (clonedSchema && !clonedSchema.type && !clonedSchema.properties) {
+  // 如果没有 type 和 properties，则默认为 string 类型
+  if (!clonedSchema.type && !clonedSchema.properties) {
     clonedSchema.type = 'string'
   }
 
-  if (
-    !clonedSchema.type &&
-    clonedSchema.properties &&
-    typeof clonedSchema.properties === 'object'
-  ) {
+  // 如果没有 type，但有 properties，则推断为 object 类型
+  if (!clonedSchema.type && clonedSchema.properties) {
     clonedSchema.type = 'object'
   }
 
+  // 处理 object 类型的 schema
   if (clonedSchema.type === 'object') {
-    if (!clonedSchema.properties) {
-      clonedSchema.properties = {}
-    }
+    clonedSchema.properties = clonedSchema.properties || {}
 
-    if (clonedSchema.properties && typeof clonedSchema.properties === 'object') {
-      Object.keys(clonedSchema.properties).forEach((key) => {
-        const property = clonedSchema.properties![key]
-        if (
-          property &&
-          !property.type &&
-          property.properties &&
-          typeof property.properties === 'object'
-        ) {
+    Object.entries(clonedSchema.properties).forEach(([key, property]) => {
+      if (property) {
+        // 如果子属性缺失 type 且有 properties，则推断为 object 类型
+        if (!property.type && property.properties) {
           property.type = 'object'
         }
-        if (property && (property.type === 'array' || property.type === 'object')) {
-          clonedSchema.properties![key] = handleSchema(property)
-        }
-      })
-    }
-  } else if (clonedSchema.type === 'array') {
+
+        // 递归处理子属性
+        clonedSchema.properties![key] = handleSchema(property)
+      }
+    })
+  }
+  // 处理 array 类型的 schema
+  else if (clonedSchema.type === 'array') {
     if (!clonedSchema.items) {
+      // 如果 items 缺失，默认设置为单一对象类型的 string
       clonedSchema.items = { type: 'string' }
     }
-    clonedSchema.items = handleSchema(clonedSchema.items)
+
+    if (Array.isArray(clonedSchema.items)) {
+      // 如果 items 是数组，递归处理每个 item
+      clonedSchema.items = clonedSchema.items.map((item) => handleSchema(item))
+    } else {
+      // 如果 items 是单一对象，递归处理
+      clonedSchema.items = handleSchema(clonedSchema.items)
+    }
   }
 
   return clonedSchema

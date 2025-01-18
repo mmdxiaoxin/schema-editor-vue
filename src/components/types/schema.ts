@@ -1,7 +1,6 @@
 export interface Schema {
   title?: string
   type: string
-  value?: any
   properties?: Record<string, Schema>
   required?: string[]
   description?: string
@@ -17,7 +16,7 @@ export interface Schema {
   format?: string
   exclusiveMinimum?: boolean
   exclusiveMaximum?: boolean
-  items?: Schema
+  items?: Schema | Schema[]
   minItems?: number
   maxItems?: number
   uniqueItems?: boolean
@@ -30,7 +29,6 @@ export interface FlatSchema {
   keyPathString: string
   title?: string
   type: string
-  value?: any
   properties?: Record<string, Schema>
   required?: string[]
   description?: string

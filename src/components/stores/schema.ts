@@ -252,7 +252,6 @@ export const useSchemaStore = defineStore('schema', {
         currentField.default = newSchema.default || undefined
 
         // 清空子项
-        currentField.value = undefined
         if ('properties' in currentField) {
           delete currentField.properties
         }
